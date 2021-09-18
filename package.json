@@ -1,0 +1,19 @@
+{
+  "name": "asteroids",
+  "version": "0.0.1",
+  "description": "The classic arcade game in JS",
+  "main": "index.js",
+  "author": "David Allen",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "start": "webpack serve",
+    "build": "webpack"
+  },
+  "devDependencies": {
+    "html-webpack-plugin": "^5.3.2",
+    "webpack": "^5.52.1",
+    "webpack-cli": "^4.8.0",
+    "webpack-dev-server": "^4.2.0"
+  }
+}
