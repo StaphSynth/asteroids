@@ -2,7 +2,9 @@ import { Application } from 'pixi.js'
 import Keyboard, { keys } from './keyboard'
 import Ship from './ship'
 
-const app = new Application({ width: 320, height: 200 })
+const app = new Application({ width: 640, height: 480 })
+const ACCELERATION = 0.2
+const MAX_VELOCITY = 5
 
 document.body.appendChild(app.view)
 Keyboard.init()
@@ -13,6 +15,7 @@ app.stage.addChild(ship)
 app.ticker.add((delta) => {
   handleKeys()
   handleWrap()
+  updateVelocity()
   elapsed += delta
 })
 
@@ -30,20 +33,38 @@ const handleWrap = () => {
   }
 }
 
+const updateVelocity = () => {
+  if (ship.vx > MAX_VELOCITY) {
+    ship.vx = MAX_VELOCITY
+  } else if (ship.vx < -MAX_VELOCITY) {
+    ship.vx = -MAX_VELOCITY
+  }
+
+
+  if (ship.vy > MAX_VELOCITY) {
+    ship.vy = MAX_VELOCITY
+  } else if (ship.vy < -MAX_VELOCITY) {
+    ship.vy = -MAX_VELOCITY
+  }
+
+  ship.x += ship.vx
+  ship.y += ship.vy
+}
+
 const handleKeys = () => {
   keys().forEach((key) => {
     switch (key) {
       case 'ArrowLeft':
-        ship.x -= 5
+        ship.vx -= ACCELERATION
         break
       case 'ArrowRight':
-        ship.x += 5
+        ship.vx += ACCELERATION
         break
       case 'ArrowUp':
-        ship.y -= 5
+        ship.vy -= ACCELERATION
         break
       case 'ArrowDown':
-        ship.y += 5
+        ship.vy += ACCELERATION
     }
   })
 }
