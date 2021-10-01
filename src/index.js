@@ -1,23 +1,45 @@
-import { Application } from 'pixi.js'
+import { Application, Text, TextStyle } from 'pixi.js'
 import Keyboard, { keys } from './keyboard'
 import Ship from './ship'
 
 const app = new Application({ width: 640, height: 480 })
-const ACCELERATION = 0.2
+const ACCELERATION = 0.3
 const MAX_VELOCITY = 5
+const ANGULAR_ACCELERATION = 0.06
 
 document.body.appendChild(app.view)
 Keyboard.init()
 let elapsed = 0.0
 let ship = Ship(app.view)
+let debug = new Text('', new TextStyle({
+  fontFamily: 'Arial',
+  fontSize: 12,
+  fill: 'white',
+  stroke: '#FFFFFF',
+  strokeThickness: 1
+}))
 app.stage.addChild(ship)
+app.stage.addChild(debug)
+
+// console.log("SHIP: ", Object.keys(ship))
 
 app.ticker.add((delta) => {
   handleKeys()
   handleWrap()
   updateVelocity()
+  updateDebugString()
   elapsed += delta
 })
+
+const updateDebugString = () => {
+  debug.text = `
+    ROATION: ${ship.rotation.toFixed(2)}\n
+    VX: ${ship.vx.toFixed(2)}\n
+    VY: ${ship.vy.toFixed(2)}\n
+    X: ${ship.x.toFixed(0)}\n
+    Y: ${ship.y.toFixed(0)}
+  `
+}
 
 const handleWrap = () => {
   if (ship.x > app.view.width) {
