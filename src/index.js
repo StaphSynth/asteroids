@@ -77,16 +77,22 @@ const handleKeys = () => {
   keys().forEach((key) => {
     switch (key) {
       case 'ArrowLeft':
-        ship.vx -= ACCELERATION
+        ship.rotation -= ANGULAR_ACCELERATION
         break
       case 'ArrowRight':
-        ship.vx += ACCELERATION
+        ship.rotation += ANGULAR_ACCELERATION
         break
       case 'ArrowUp':
-        ship.vy -= ACCELERATION
+        ship.vy += -(ACCELERATION * Math.cos(ship.rotation))
+        ship.vx += (ACCELERATION * Math.sin(ship.rotation))
         break
       case 'ArrowDown':
-        ship.vy += ACCELERATION
+        ship.vy += (ACCELERATION * Math.cos(ship.rotation))
+        ship.vx += -(ACCELERATION * Math.sin(ship.rotation))
+        break
+      case ' ':
+        // pew pew pew
+        break
     }
   })
 }
