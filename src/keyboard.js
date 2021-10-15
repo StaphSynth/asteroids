@@ -6,17 +6,15 @@ const init = () => {
 }
 
 const downHandler = (event) => {
-  event.preventDefault()
   const key = event.key
 
   if (!isActive(key)) {
     activeKeys.push(key)
+    event.preventDefault()
   }
 }
 
 const upHandler = (event) => {
-  event.preventDefault()
-
   activeKeys = activeKeys.filter((key) => (
     key !== event.key
   ))

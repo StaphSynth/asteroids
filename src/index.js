@@ -1,76 +1,46 @@
-import { Application, Text, TextStyle } from 'pixi.js'
+import { Application } from 'pixi.js'
+import debounce from 'lodash/debounce'
 import Keyboard, { keys } from './keyboard'
 import Ship from './ship'
+import Bullet from './bullet'
+import Debugger from './debugger'
+import {
+  ACCELERATION,
+  ANGULAR_ACCELERATION,
+  VIEW_HEIGHT,
+  VIEW_WIDTH
+} from './constants'
 
-const app = new Application({ width: 640, height: 480 })
-const ACCELERATION = 0.3
-const MAX_VELOCITY = 5
-const ANGULAR_ACCELERATION = 0.06
+const app = new Application({ width: VIEW_WIDTH, height: VIEW_HEIGHT })
 
 document.body.appendChild(app.view)
 Keyboard.init()
-let elapsed = 0.0
-let ship = Ship(app.view)
-let debug = new Text('', new TextStyle({
-  fontFamily: 'Arial',
-  fontSize: 12,
-  fill: 'white',
-  stroke: '#FFFFFF',
-  strokeThickness: 1
-}))
-app.stage.addChild(ship)
-app.stage.addChild(debug)
+let elapsed = Date.now()
+const ship = Ship(app.view)
+const debugDisplay = Debugger(ship)
+let entities = []
 
-// console.log("SHIP: ", Object.keys(ship))
+const generateBullet = debounce(() => {
+  let bullet = Bullet(ship)
+  entities.push(bullet)
+  app.stage.addChild(bullet)
+}, 50)
 
-app.ticker.add((delta) => {
-  handleKeys()
-  handleWrap()
-  updateVelocity()
-  updateDebugString()
-  elapsed += delta
-})
+const updateEntities = (delta) => {
+  const updatedEntities = []
 
-const updateDebugString = () => {
-  debug.text = `
-    ROATION: ${ship.rotation.toFixed(2)}\n
-    VX: ${ship.vx.toFixed(2)}\n
-    VY: ${ship.vy.toFixed(2)}\n
-    X: ${ship.x.toFixed(0)}\n
-    Y: ${ship.y.toFixed(0)}
-  `
-}
+  for (let i = 0; i < entities.length; i++) {
+    let entity = entities[i]
+    entity.update(delta)
 
-const handleWrap = () => {
-  if (ship.x > app.view.width) {
-    ship.x = 0
-  } else if (ship.x < 0) {
-    ship.x = app.view.width
+    if (entity.shouldBeDestroyed) {
+      entity.destroy()
+    } else {
+      updatedEntities.push(entity)
+    }
   }
 
-  if (ship.y > app.view.height) {
-    ship.y = 0
-  } else if (ship.y < 0) {
-    ship.y = app.view.height
-  }
-}
-
-const updateVelocity = () => {
-  if (ship.vx > MAX_VELOCITY) {
-    ship.vx = MAX_VELOCITY
-  } else if (ship.vx < -MAX_VELOCITY) {
-    ship.vx = -MAX_VELOCITY
-  }
-
-
-  if (ship.vy > MAX_VELOCITY) {
-    ship.vy = MAX_VELOCITY
-  } else if (ship.vy < -MAX_VELOCITY) {
-    ship.vy = -MAX_VELOCITY
-  }
-
-  ship.x += ship.vx
-  ship.y += ship.vy
+  entities = updatedEntities
 }
 
 const handleKeys = () => {
@@ -91,8 +61,23 @@ const handleKeys = () => {
         ship.vx += -(ACCELERATION * Math.sin(ship.rotation))
         break
       case ' ':
-        // pew pew pew
+        generateBullet()
         break
     }
   })
 }
+
+app.stage.addChild(ship)
+app.stage.addChild(debugDisplay)
+
+const loop = () => {
+  let delta = Date.now() - elapsed
+  handleKeys()
+  ship.update(delta)
+  updateEntities(delta)
+  debugDisplay.update(ship, entities)
+  elapsed += delta
+  requestAnimationFrame(loop)
+}
+
+requestAnimationFrame(loop)
