@@ -17,7 +17,7 @@ document.body.appendChild(app.view)
 Keyboard.init()
 let elapsed = Date.now()
 const ship = Ship(app.view)
-const debugDisplay = Debugger(ship)
+const debugDisplay = Debugger()
 let entities = []
 
 const generateBullet = debounce(() => {

@@ -1,6 +1,6 @@
 import { Text, TextStyle } from 'pixi.js'
 
-const Debugger = (ship) => {
+const Debugger = () => {
   const debug = new Text('', new TextStyle({
     fontFamily: 'Arial',
     fontSize: 12,
